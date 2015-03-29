@@ -15,10 +15,11 @@ output:
 
 #Processing Data
 
+First, I downloaded data from coursera website and unzipped it.
 
 ##Download and Unzip Data Files
 
-```{r}
+```{r,cache=TRUE}
 if (!file.exists("Coursera-SwiftKey.zip")){
   download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", 
                 destfile = "Coursera-SwiftKey.zip", method="curl")
@@ -26,11 +27,13 @@ if (!file.exists("Coursera-SwiftKey.zip")){
 }
 ```
 
+After extracting data, I took profile of each files; such as the number of lines and words. See summaries below.
+
 ##Basic Sumamries of Files
 
 In this section, I would like to present my explorartly analysis. Before jumping into other Natural Language Processing Libraries such as NLP or tm package, I used simple regex to split tokens.
 
-```{r,echo=FALSE}
+```{r,echo=FALSE,cache=TRUE}
 library(stringr)
 library(xtable)
 showFileSummary<-function(path){
@@ -72,9 +75,10 @@ showFileSummary('final/en_US/en_US.twitter.txt')
 
 In order to filter profanity words, I selected a list from [Front Game Media's Blog Article](http://www.frontgatemedia.com/a-list-of-723-bad-words-to-blacklist-and-how-to-use-facebooks-moderation-tool/) because of the large number of words. The profainity file has to be cleaned too because contains website information and comma within the cell. The code below extract the list as character vector.
 
-```{r}
+```{r,cache=TRUE}
 if (!file.exists("Terms-to-Block.csv")){
-  download.file("http://www.frontgatemedia.com/new/wp-content/uploads/2014/03/Terms-to-Block.csv", destfile = "Terms-to-Block.csv", method="curl")  
+  download.file("http://www.frontgatemedia.com/new/wp-content/uploads/2014/03/Terms-to-Block.csv", 
+                destfile = "Terms-to-Block.csv", method="curl")  
 }
 profanity<-gsub(",","",read.csv("Terms-to-Block.csv")[-(1:3),2])
 ```
@@ -87,7 +91,7 @@ length(profanity)[[1]]
 
 #Cleaning and Training Set
 
-```{r}
+```{r,cache=TRUE}
 createTrainingSet<-function(src_path,target_path,filter_words,ratio){
   lines<-readLines(src_path, skipNul=TRUE, encoding = "UTF-8")
   total<-length(lines)
@@ -99,15 +103,18 @@ createTrainingSet<-function(src_path,target_path,filter_words,ratio){
 }
 profanity<-gsub(",","",read.csv("Terms-to-Block.csv")[-(1:3),2])
 
-# Training Set 5%
-createTrainingSet('final/en_US/en_US.blogs.txt','data/blog.csv',profanity,0.05)
-createTrainingSet('final/en_US/en_US.news.txt','data/news.csv',profanity,0.05)
-createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter.csv',profanity,0.05)
-
-# Create Small Set for Wordcloud in Interesting Finding Section
-createTrainingSet('final/en_US/en_US.blogs.txt','data/blog_sm.csv',profanity,0.005)
-createTrainingSet('final/en_US/en_US.news.txt','data/news_sm.csv',profanity,0.005)
-createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_sm.csv',profanity,0.005)
+# Sample Set: 5%
+if (!file.exists("data/blog.csv")){
+  createTrainingSet('final/en_US/en_US.blogs.txt','data/blog.csv',profanity,0.05)
+  createTrainingSet('final/en_US/en_US.news.txt','data/news.csv',profanity,0.05)
+  createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter.csv',profanity,0.05)
+  
+  # Second Sample Set: 0.5%
+  # Create Small Set for Wordcloud in Interesting Finding Section
+  createTrainingSet('final/en_US/en_US.blogs.txt','data/blog_sm.csv',profanity,0.005)
+  createTrainingSet('final/en_US/en_US.news.txt','data/news_sm.csv',profanity,0.005)
+  createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_sm.csv',profanity,0.005)
+}
 ```
 
 
@@ -118,17 +125,18 @@ createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_sm.csv',profanit
 
 #Interesting Findings
 
-```{r}
+```{r,cache=TRUE}
 library(tm)
 library(wordcloud)
 
 generateWordCloud<-function(path){
-  cps <- Corpus(VectorSource(as.vector(read.csv(path,sep='\t'))))  
+  cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
   cps <- tm_map(cps, removePunctuation)
   cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
   png(paste(path,".png",sep=""), width=400,height=300)
   options(mc.cores=1)  
-  wordcloud(cps, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, 'Dark2'))
+  wordcloud(cps, scale=c(5,0.5), max.words=100, random.order=FALSE, 
+            rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, 'Dark2'))
   dev.off()
 }
 
@@ -138,8 +146,13 @@ generateWordCloud('data/twitter_sm.csv')
 ```
 
 [Blog](./images/blog_sm.csv.png)
+https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/blog_sm.csv.png
+
 [News](./images/news_sm.csv.png)
+https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/news_sm.csv.png
+
 [Twitter](./images/twitter_sm.csv.png)
+https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/twitter_sm.csv.png
 
 #Future Plans
 

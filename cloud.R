@@ -2,7 +2,8 @@ library(tm)
 library(wordcloud)
 
 generateWordCloud<-function(path){
-  cps <- Corpus(VectorSource(as.vector(read.csv(path,sep='\t'))))  
+  #cps <- Corpus(VectorSource(as.vector(read.csv(path,sep='\t'))))  
+  cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
   cps <- tm_map(cps, removePunctuation)
   cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
   png(paste(path,".png",sep=""), width=400,height=300)
