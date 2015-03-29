@@ -104,7 +104,7 @@ createTrainingSet('final/en_US/en_US.blogs.txt','data/blog.csv',profanity,0.05)
 createTrainingSet('final/en_US/en_US.news.txt','data/news.csv',profanity,0.05)
 createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter.csv',profanity,0.05)
 
-# Create Small Set for Wordcloud
+# Create Small Set for Wordcloud in Interesting Finding Section
 createTrainingSet('final/en_US/en_US.blogs.txt','data/blog_sm.csv',profanity,0.005)
 createTrainingSet('final/en_US/en_US.news.txt','data/news_sm.csv',profanity,0.005)
 createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_sm.csv',profanity,0.005)
@@ -117,6 +117,29 @@ createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_sm.csv',profanit
 
 
 #Interesting Findings
+
+```{r}
+library(tm)
+library(wordcloud)
+
+generateWordCloud<-function(path){
+  cps <- Corpus(VectorSource(as.vector(read.csv(path,sep='\t'))))  
+  cps <- tm_map(cps, removePunctuation)
+  cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
+  png(paste(path,".png",sep=""), width=400,height=300)
+  options(mc.cores=1)  
+  wordcloud(cps, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, 'Dark2'))
+  dev.off()
+}
+
+generateWordCloud('data/blog_sm.csv')
+generateWordCloud('data/news_sm.csv')
+generateWordCloud('data/twitter_sm.csv')
+```
+
+[Blog](./images/blog_sm.csv.png)
+[News](./images/news_sm.csv.png)
+[Twitter](./images/twitter_sm.csv.png)
 
 #Future Plans
 
