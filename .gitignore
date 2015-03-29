@@ -11,3 +11,9 @@
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+
+data/
+final/
+*.zip
+.RData
+.DS_Store
