@@ -13,8 +13,8 @@ cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
 
 #Tokenizer for n-grams and passed on to the term-document matrix constructor
 UnigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 1))
-BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 2))
-TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 3))
+BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
 tdm <- TermDocumentMatrix(cps, control = list(tokenize = UnigramTokenizer))
 tdm
 tdm <- TermDocumentMatrix(cps, control = list(tokenize = BigramTokenizer))

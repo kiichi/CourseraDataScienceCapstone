@@ -12,8 +12,12 @@ output:
 
 #Introduction
 
+This is a milestone report of Coursera Data Science Course Capstone Project. The goal of this project is to read training data set in order to predict suggested words based on previous input.
 
-#Processing Data
+In this report, I wil demonstrate that training data from swiftkey will be downloaded and preprocessed for later usage. Brief summaries of each files, exploratory analysis and future implementation plans will be presented in this report.
+
+
+#Preparing Data
 
 First, I downloaded data from coursera website and unzipped it.
 
@@ -29,9 +33,9 @@ if (!file.exists("Coursera-SwiftKey.zip")){
 
 After extracting data, I took profile of each files; such as the number of lines and words. See summaries below.
 
-##Basic Sumamries of Files
+#Basic Sumamries of Files
 
-In this section, I would like to present my explorartly analysis. Before jumping into other Natural Language Processing Libraries such as NLP or tm package, I used simple regex to split tokens.
+In this section, I would like to present my explorartly analysis. Before jumping into other Natural Language Processing Libraries such as RWeka or tm package, I used simple regex function to split tokens.
 
 ```{r,echo=FALSE,cache=TRUE}
 library(stringr)
@@ -55,21 +59,19 @@ showFileSummary<-function(path){
 }
 ```
 
-###Blogs
-```{r,echo=FALSE,results='asis'}
+##Blogs
+```{r,echo=FALSE,results='asis',cache=TRUE}
 showFileSummary('final/en_US/en_US.blogs.txt')
 ```
 
-###News
-```{r,echo=FALSE,results='asis'}
+##News
+```{r,echo=FALSE,results='asis',cache=TRUE}
 showFileSummary('final/en_US/en_US.news.txt')
 ```
-###Twitter
-```{r,echo=FALSE,results='asis'}
+##Twitter
+```{r,echo=FALSE,results='asis',cache=TRUE}
 showFileSummary('final/en_US/en_US.twitter.txt')
 ```
-
-
 
 ##Profanity Words
 
@@ -85,11 +87,13 @@ profanity<-gsub(",","",read.csv("Terms-to-Block.csv")[-(1:3),2])
 
 Here is the number of profanity words
 
-```{r}
+```{r,echo=FALSE}
 length(profanity)[[1]]
 ```
 
-#Cleaning and Training Set
+#Cleaning and Sampling Dataset
+
+In this section, I am running script to generate sample / training set from the original data. The function, createTrainingSet generates 5% and 0.5% of data for later usage in this report.
 
 ```{r,cache=TRUE}
 createTrainingSet<-function(src_path,target_path,filter_words,ratio){
@@ -120,44 +124,148 @@ if (!file.exists("data/blog.csv")){
 
 #Features of Data
 
+I obtained clean and handy sample datasets for blog, news and twitter. These are basic tokeniers for unigram, bigram and trigram so that we can build corpus for each dataset. 
 
+```{r,cache=TRUE}
+library(tm)
+library(RWeka)
+
+options(mc.cores=1)
+UnigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 1))
+BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+```
+
+Next, let's build a function to read data files and generate histogram for each n-gram. 
+
+After displaying histogram, Corpus object would be built and Text Document Matrix of Trigram is shown below.
+
+Note: TermDocumentMatrix error in Rmd generator. I'm pasting the same result from my console.
+
+```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
+library(ggplot2)
+library(gridExtra)
+generateHist<-function(path,tokenizer){  
+  tokens<-tokenizer(readLines(path))
+  freq_tbl<-head(sort(table(data.frame(tokens)),decreasing=T),20)
+  freq_df<-data.frame(token=rownames(freq_tbl),freq=as.vector(freq_tbl))
+  freq_df$token<-factor(freq_df$token,levels=freq_df[order(freq_df$freq),"token"])
+  qplot(token,freq,data=freq_df,geom="bar",stat="identity",fill=freq) + coord_flip() + theme(legend.position="none")
+}
+
+showTDM<-function(path){
+  cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
+  cps <- tm_map(cps, removePunctuation)
+  cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
+  TermDocumentMatrix(cps, control = list(tokenize = TrigramTokenizer))
+}
+```
+
+##Blog
+```{r,cache=TRUE,echo=FALSE}
+path<-'data/blog_sm.csv'
+grid.arrange(generateHist(path,UnigramTokenizer),
+             generateHist(path,BigramTokenizer),
+             generateHist(path,TrigramTokenizer),
+             ncol=3)
+
+#showTDM(path) 
+```
+Term Document Matrix
+```
+Non-/sparse entries: 103264/189682686
+Sparsity           : 100%
+Maximal term length: 143
+```
+
+
+##News
+```{r,cache=TRUE,echo=FALSE}
+path<-'data/news_sm.csv'
+grid.arrange(generateHist(path,UnigramTokenizer),
+             generateHist(path,BigramTokenizer),
+             generateHist(path,TrigramTokenizer),
+             ncol=3)
+#showTDM(path)
+```
+
+Term Document Matrix
+```
+Non-/sparse entries: 101329/221472110
+Sparsity           : 100%
+Maximal term length: 54
+```
+
+
+##Twitter
+```{r,cache=TRUE,echo=FALSE}
+path<-'data/twitter_sm.csv'
+grid.arrange(generateHist(path,UnigramTokenizer),
+             generateHist(path,BigramTokenizer),
+             generateHist(path,TrigramTokenizer),
+             ncol=3)
+#showTDM(path)
+```
+
+Term Document Matrix
+```
+Non-/sparse entries: 86865/444600595
+Sparsity           : 100%
+Maximal term length: 70
+```
 
 
 #Interesting Findings
 
-```{r,cache=TRUE}
+Wordcoloud is a visualization technique to emphasize the font size of frequent occuring words. This is another intuitive way to interpret how words are used in the context.
+
+As you see below, news repeateadly used word "said" while twitter scatteres wide range of vocavularies. Especially, I see positive emotional words, such as "good", "love" and "like".
+
+```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
 library(tm)
 library(wordcloud)
 
 generateWordCloud<-function(path){
+  #cps <- Corpus(VectorSource(as.vector(read.csv(path,sep='\t'))))  
   cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
   cps <- tm_map(cps, removePunctuation)
   cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
-  png(paste(path,".png",sep=""), width=400,height=300)
-  options(mc.cores=1)  
-  wordcloud(cps, scale=c(5,0.5), max.words=100, random.order=FALSE, 
-            rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, 'Dark2'))
-  dev.off()
+  #png(paste(path,".png",sep=""), width=400,height=300)
+  options(mc.cores=1)
+  #BuGn or Dark2
+  wordcloud(cps, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, 'Dark2'))
+  #dev.off()
 }
+```
 
+##Blog
+
+```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
 generateWordCloud('data/blog_sm.csv')
+```
+
+##News
+
+```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
 generateWordCloud('data/news_sm.csv')
+```
+
+##Twitter
+
+```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
 generateWordCloud('data/twitter_sm.csv')
 ```
 
-[Blog](./images/blog_sm.csv.png)
-https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/blog_sm.csv.png
 
-[News](./images/news_sm.csv.png)
-https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/news_sm.csv.png
+#Future Plans and Final Product
 
-[Twitter](./images/twitter_sm.csv.png)
-https://raw.githubusercontent.com/kiichi/CourseraDataScienceCapstone/master/images/twitter_sm.csv.png
+In production, 70% of the original dataset would be used. After building Corpus and Term Document Matrix from those files, following smoothing techniques will be examined:
 
-#Future Plans
+1. Laplace Smoothing Simply Adding one (or normaized value between 0 and 1) so that we can avoid zero to estimate unknown combinations.
+2. Removing Sparse Data (Rare occuring combination of words tend to be zero probability in training, so they will be removed)
+3. Backoff models (e.g. if trigram is not found, backoff to bigram while we assume they will be appearing as same frequency)
 
-
-
+The final product will be uploaded as Shyny App. I will provide user interface where the user can type in text, and prediction of words will be listed next to the textbox.
 
 
 

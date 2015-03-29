@@ -1,0 +1,91 @@
+
+Q4
+grep " but the players" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " but the referees" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " but the crowd" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " but the defense" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+Q5
+grep "date at the grocery" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "date at the mall" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "date at the movies" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "date at the beach" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+Q6
+grep "and be on way" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "and be on horse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "and be on motorcycle" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "and be on phone" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+backoff
+grep " be on way" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " be on horse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " be on motorcycle" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep " be on phone" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+grep "on way" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "on horse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "on motorcycle" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "on phone" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+Q7
+
+grep "in quite some thing" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "in quite some weeks" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "in quite some years" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "in quite some time" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+
+Q8
+
+
+grep "with his little toes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his little fingers" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his little eyes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his little ears" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+--backoff
+grep "his little toes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "his little fingers" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "his little eyes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "his little ears" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+
+Q9
+grep "faith during the bad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during the hard" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during the sad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during the worse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+backoff
+grep "during the bad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "during the hard" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "during the sad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "during the worse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+Q10
+
+
+grep "you must be asleep" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "you must be insane" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "you must be insensitive" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "you must be callous" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+backoff
+grep "must be asleep" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "must be insane" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "must be insensitive" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "must be callous" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+Demonstrate that you've downloaded the data and have successfully loaded it in.
+2. Create a basic report of summary statistics about the data sets.
+3. Report any interesting findings that you amassed so far.
+4. Get feedback on your plans for creating a prediction algorithm and Shiny app. 
+
+

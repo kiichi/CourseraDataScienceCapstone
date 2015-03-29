@@ -17,3 +17,6 @@ final/
 *.zip
 .RData
 .DS_Store
+
+*_cache/
+*_files/
