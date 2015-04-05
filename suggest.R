@@ -69,6 +69,10 @@ createTrainingSet<-function(src_path,target_path,ratio){
 	saveRDS(triFreq,file=paste(target_path,'3.Rda',sep='_'))
 	rm(triFreq)
 	print('tri done')
+	quadFreq<-getFrequency(getTokens(getCorpusV(lines),4))
+	saveRDS(quadFreq,file=paste(target_path,'4.Rda',sep='_'))
+	rm(quadFreq)
+	print('tri done')	
 	print(proc.time() - ptm)			
 	rm(lines)
 }
@@ -96,6 +100,7 @@ uniTokens<-getTokens(cps,1)
 biTokens<-getTokens(cps,2)
 triTokens<-getTokens(cps,3)
 
+
 #uniFreq<-getFrequency(uniTokens)
 #biFreq<-getFrequency(biTokens)
 #triFreq<-getFrequency(triTokens)
@@ -107,6 +112,7 @@ triFreq<-readRDS('data/simple_freq_3.Rda')
 uniFreq<-readRDS('data/blog_freq_1.Rda')
 biFreq<-readRDS('data/blog_freq_2.Rda')
 triFreq<-readRDS('data/blog_freq_3.Rda')
+quadFreq<-readRDS('data/blog_freq_4.Rda')
 
 findWords(uniFreq,'^i$')
 findWords(biFreq,'^i have$')
@@ -120,15 +126,26 @@ tmp2<-findWords(biFreq,wd2)
 tmp2$prob<-tmp2$freq/tmp$freq[1]
 tmp2
 
+#e.g 2: try P('today is <Unk>')
+wd<-'^today is$'
+wd2<-'^today is .*$'
+tmp<-findWords(biFreq,wd)
+tmp2<-findWords(triFreq,wd2)
+tmp2$prob<-tmp2$freq/tmp$freq[1]
+tmp2
+
 #step 2: give possible combo P('i <Unk1> <Unk2>'|'i <Unk1>')
-wd3<-as.vector(tmp2$token)
-wd3<-paste(as.vector(tmp2$token),collapse='.*$|^')
-wd3<-paste('^',wd3,'.*$',sep='')
-tmp3<-findWords(triFreq,wd3)
-tmp3
-tmp3$prob<-tmp3$freq/tmp2$freq
-tmp3
+#wd3<-as.vector(tmp2$token)
+#wd3<-paste(as.vector(tmp2$token),collapse='.*$|^')
+#wd3<-paste('^',wd3,'.*$',sep='')
+#tmp3<-findWords(triFreq,wd3)
+#tmp3
+#tmp3$prob<-tmp3$freq/tmp2$freq
+#tmp3
+
 #tmp3$prob<-tmp3$freq/tmp2
+
+
 #stopImplicitCluster()
 
 
