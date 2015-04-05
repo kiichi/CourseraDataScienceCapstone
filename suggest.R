@@ -72,7 +72,7 @@ createTrainingSet<-function(src_path,target_path,ratio){
 	quadFreq<-getFrequency(getTokens(getCorpusV(lines),4))
 	saveRDS(quadFreq,file=paste(target_path,'4.Rda',sep='_'))
 	rm(quadFreq)
-	print('tri done')	
+	print('quad done')	
 	print(proc.time() - ptm)			
 	rm(lines)
 }
@@ -118,23 +118,49 @@ findWords(uniFreq,'^i$')
 findWords(biFreq,'^i have$')
 findWords(triFreq,'^i have a$')
 
-#step 1: give P('i <Unk>'|'i')
-wd<-'^i$'
-wd2<-'^i .*$'
+
+####### Problem ################
+# Let's predict what is expected in <Unk> "i have a <Unk>"
+
+#e.g. 0: unigram test P('<Unk>') - not useful
+#inwd<-c('.*')
+#wd<-paste(c('^',inwd,'$'),collapse='')
+#tmp2<-findWords(uniFreq,wd)
+#tmp2$prob<-tmp2$freq/sum(uniFreq$freq)
+#tmp2
+
+#e.g 1: bigram test. give P('today <Unk>'|'today')
+inwd<-c('a')
+wd<-paste(c('^',inwd,'$'),collapse='')
+wd2<-paste(c('^',inwd,' .*$'),collapse='')
 tmp<-findWords(uniFreq,wd)
 tmp2<-findWords(biFreq,wd2)
 tmp2$prob<-tmp2$freq/tmp$freq[1]
 tmp2
 
-#e.g 2: try P('today is <Unk>')
-wd<-'^today is$'
-wd2<-'^today is .*$'
+
+#e.g 2: trigram test. try P('today is <Unk>'|'today is')
+inwd<-c('have','a')
+inwd<-paste(inwd,collapse=' ')
+wd<-paste('^',inwd,'$',sep='')
+wd2<-paste('^',inwd,' .*$',sep='')
 tmp<-findWords(biFreq,wd)
 tmp2<-findWords(triFreq,wd2)
-tmp2$prob<-tmp2$freq/tmp$freq[1]
+tmp2$prob<-tmp2$freq/tmp$freq
 tmp2
 
-#step 2: give possible combo P('i <Unk1> <Unk2>'|'i <Unk1>')
+#e.g 3: quadgram test. try P('today is the <Unk>'|'today is the')
+inwd<-c('i','have','a')
+inwd<-paste(inwd,collapse=' ')
+wd<-paste('^',inwd,'$',sep='')
+wd2<-paste('^',inwd,' .*$',sep='')
+tmp<-findWords(triFreq,wd)
+tmp2<-findWords(quadFreq,wd2)
+tmp2$prob<-tmp2$freq/tmp$freq
+tmp2
+
+
+#e.g. ? some other long distance estimate?: give possible combo P('i <Unk1> <Unk2>'|'i <Unk1>')
 #wd3<-as.vector(tmp2$token)
 #wd3<-paste(as.vector(tmp2$token),collapse='.*$|^')
 #wd3<-paste('^',wd3,'.*$',sep='')
