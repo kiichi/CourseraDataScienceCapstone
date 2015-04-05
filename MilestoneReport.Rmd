@@ -140,7 +140,7 @@ Next, let's build a function to read data files and generate histogram for each 
 
 After displaying histogram, Corpus object would be built and Text Document Matrix of Trigram is shown below.
 
-Note: TermDocumentMatrix error in Rmd generator. I'm pasting the same result from my console.
+Note: TermDocumentMatrix errored in Rmd generator. I'm pasting the same result from my console.
 
 ```{r,cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE}
 library(ggplot2)
@@ -162,7 +162,7 @@ showTDM<-function(path){
 ```
 
 ##Blog
-```{r,cache=TRUE,echo=FALSE}
+```{r,cache=TRUE,echo=FALSE,fig.width=10}
 path<-'data/blog_sm.csv'
 grid.arrange(generateHist(path,UnigramTokenizer),
              generateHist(path,BigramTokenizer),
@@ -171,7 +171,10 @@ grid.arrange(generateHist(path,UnigramTokenizer),
 
 #showTDM(path) 
 ```
+
+
 Term Document Matrix
+
 ```
 Non-/sparse entries: 103264/189682686
 Sparsity           : 100%
@@ -180,7 +183,7 @@ Maximal term length: 143
 
 
 ##News
-```{r,cache=TRUE,echo=FALSE}
+```{r,cache=TRUE,echo=FALSE,fig.width=10}
 path<-'data/news_sm.csv'
 grid.arrange(generateHist(path,UnigramTokenizer),
              generateHist(path,BigramTokenizer),
@@ -198,7 +201,7 @@ Maximal term length: 54
 
 
 ##Twitter
-```{r,cache=TRUE,echo=FALSE}
+```{r,cache=TRUE,echo=FALSE,fig.width=10}
 path<-'data/twitter_sm.csv'
 grid.arrange(generateHist(path,UnigramTokenizer),
              generateHist(path,BigramTokenizer),
@@ -259,7 +262,37 @@ generateWordCloud('data/twitter_sm.csv')
 
 #Future Plans and Final Product
 
-In production, 70% of the original dataset would be used. After building Corpus and Term Document Matrix from those files, following smoothing techniques will be examined:
+In production, 70% of the original dataset would be used. After building Corpus and Term Document Matrix from those files, I would check associated words using above NGramTokenizer.
+
+Here is the demo of top 10 associated words of "today" in the twitter corpus.
+
+
+Note: TDM crashes in Rmd format. I'm pasting the result after this segment.
+```
+path<-'data/twitter_sm.csv'
+cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
+cps <- tm_map(cps, removePunctuation)
+cps <- tm_map(cps, function(x) removeWords(x, stopwords("english")))
+UnigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 1))
+tdm <- TermDocumentMatrix(cps, control = list(tokenize = UnigramTokenizer))
+head(findAssocs(tdm,"today",.5),10)
+```
+```
+       today
+day    0.95
+like   0.95
+dont   0.94
+love   0.94
+now    0.94
+will   0.94
+call   0.93
+even   0.93
+going  0.93
+great  0.93
+```
+
+
+In order to imporove the accuracy, following smoothing techniques will be examined:
 
 1. Laplace Smoothing Simply Adding one (or normaized value between 0 and 1) so that we can avoid zero to estimate unknown combinations.
 2. Removing Sparse Data (Rare occuring combination of words tend to be zero probability in training, so they will be removed)

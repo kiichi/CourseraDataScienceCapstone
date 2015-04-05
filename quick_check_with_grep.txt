@@ -1,15 +1,31 @@
 
-Q4
-grep " but the players" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
-grep " but the referees" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
-grep " but the crowd" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
-grep " but the defense" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+Q4 
+grep "but the players" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "but the referees" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "but the crowd" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "but the defense" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 
-Q5
+grep "struggling but .* players" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "struggling but .* referees" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "struggling but .* crowd" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "struggling but .* defense" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+
+
+Q5 -> movies
 grep "date at the grocery" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "date at the mall" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "date at the movies" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "date at the beach" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+grep "at the grocery" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "at the mall" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "at the movies" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "at the beach" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+
+
 
 
 Q6
@@ -39,7 +55,7 @@ grep "in quite some time" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 
 
 
-Q8
+Q8 -> try fingers?
 
 
 grep "with his little toes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
@@ -53,9 +69,15 @@ grep "his little fingers" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "his little eyes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "his little ears" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 
+grep "with his * toes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his * fingers" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his * eyes" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "with his * ears" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 
 
-Q9
+
+
+Q9 -> bad?
 grep "faith during the bad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "faith during the hard" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "faith during the sad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
@@ -66,6 +88,11 @@ grep "during the bad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "during the hard" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "during the sad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 grep "during the worse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+
+grep "faith during * bad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during * hard" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during * sad" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
+grep "faith during * worse" en_US.blogs.txt en_US.news.txt en_US.twitter.txt | wc
 
 
 Q10

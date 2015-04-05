@@ -6,7 +6,7 @@ options(mc.cores=1)
 UnigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 1))
 BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
 TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
-
+TrigramTokenizer2 <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 3))
 path<-'data/blog.csv'
 cps <- Corpus(DataframeSource(read.csv(path,sep='\t'))) 
 cps <- tm_map(cps, removePunctuation)
