@@ -77,6 +77,49 @@ createTrainingSet<-function(src_path,target_path,ratio){
 	rm(lines)
 }
 
+suggestWord<-function(inputWord){
+	#lambda for interpolation - do deep training for this too
+	l1<-1
+	l2<-2
+	l3<-3
+	
+	#bigram
+	inwd<-inputWord[3:length(inputWord)]
+	wd<-paste(c('^',inwd,'$'),collapse='')
+	wd2<-paste(c('^',inwd,' .*$'),collapse='')
+	tmp<-findWords(uniFreq,wd)
+	tmp2<-findWords(biFreq,wd2)
+	tmp2$prob<-tmp2$freq/tmp$freq[1]
+	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
+	print(tmp2)
+	
+	
+	#trigram
+	inwd<-inputWord[2:length(inputWord)]
+	inwd<-paste(inwd,collapse=' ')
+	wd<-paste('^',inwd,'$',sep='')
+	wd2<-paste('^',inwd,' .*$',sep='')
+	tmp<-findWords(biFreq,wd)
+	tmp2<-findWords(triFreq,wd2)
+	tmp2$prob<-tmp2$freq/tmp$freq
+	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
+	print(tmp2)
+	
+	#quadgram
+	inwd<-inputWord[1:length(inputWord)]
+	inwd<-paste(inwd,collapse=' ')
+	wd<-paste('^',inwd,'$',sep='')
+	wd2<-paste('^',inwd,' .*$',sep='')
+	tmp<-findWords(triFreq,wd)
+	tmp2<-findWords(quadFreq,wd2)
+	tmp2$prob<-tmp2$freq/tmp$freq
+	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
+	print(tmp2)
+}
+
+#load grams first
+suggestWord(c('i','have','a'))
+
 ###################################################################
 
 
@@ -158,6 +201,8 @@ tmp<-findWords(triFreq,wd)
 tmp2<-findWords(quadFreq,wd2)
 tmp2$prob<-tmp2$freq/tmp$freq
 tmp2
+
+
 
 
 #e.g. ? some other long distance estimate?: give possible combo P('i <Unk1> <Unk2>'|'i <Unk1>')
