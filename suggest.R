@@ -37,7 +37,7 @@ getFrequency<-function(tokens){
 	fdf[order(fdf$freq,decreasing=T),]
 }
 
-findWords<-function(freq,target,limit=10){
+findWords<-function(freq,target,limit=1000){
 	#head(freq[grepl(paste('^',target,'.*$',sep=''),freq$token,ignore.case=T),],limit)
 	head(freq[grepl(target,freq$token,ignore.case=T),],limit)
 }
@@ -83,19 +83,22 @@ suggestWord<-function(inputWord){
 	l2<-2
 	l3<-3
 	
+	len<-length(inputWord)
+	
 	#bigram
-	inwd<-inputWord[3:length(inputWord)]
+	inwd<-inputWord[len:length(inputWord)]
 	wd<-paste(c('^',inwd,'$'),collapse='')
 	wd2<-paste(c('^',inwd,' .*$'),collapse='')
 	tmp<-findWords(uniFreq,wd)
 	tmp2<-findWords(biFreq,wd2)
 	tmp2$prob<-tmp2$freq/tmp$freq[1]
-	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
-	print(tmp2)
-	
+	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)	
+	bitmp<-tmp2
+	#print(tmp2)
+		
 	
 	#trigram
-	inwd<-inputWord[2:length(inputWord)]
+	inwd<-inputWord[(len-1):length(inputWord)]
 	inwd<-paste(inwd,collapse=' ')
 	wd<-paste('^',inwd,'$',sep='')
 	wd2<-paste('^',inwd,' .*$',sep='')
@@ -103,10 +106,11 @@ suggestWord<-function(inputWord){
 	tmp2<-findWords(triFreq,wd2)
 	tmp2$prob<-tmp2$freq/tmp$freq
 	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
-	print(tmp2)
+	tritmp<-tmp2
+	#print(tmp2)
 	
 	#quadgram
-	inwd<-inputWord[1:length(inputWord)]
+	inwd<-inputWord[(len-2):length(inputWord)]
 	inwd<-paste(inwd,collapse=' ')
 	wd<-paste('^',inwd,'$',sep='')
 	wd2<-paste('^',inwd,' .*$',sep='')
@@ -114,11 +118,25 @@ suggestWord<-function(inputWord){
 	tmp2<-findWords(quadFreq,wd2)
 	tmp2$prob<-tmp2$freq/tmp$freq
 	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
-	print(tmp2)
+	quadtmp<-tmp2
+	#print(tmp2)
+	
+	tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
+	tbl<-merge(x=tbl,y=quadtmp,by="target",all.x=T)
+	tbl$score<-rowSums(tbl[,c(4,7,10)])
+	tbl<-tbl[order(tbl$score,decreasing=T),]
+	print(head(tbl[,c(1,11)]))
+	
+	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
+	#tbl$score<-rowSums(tbl[,c(4,7)])
+	#tbl<-tbl[order(tbl$score,decreasing=T),]
+	#print(head(tbl))
 }
 
 #load grams first
-suggestWord(c('i','have','a'))
+inputWord<-c('i','have','a')
+#inputWord<-c('to','the')
+suggestWord(inputWord)
 
 ###################################################################
 
