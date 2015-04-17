@@ -1,5 +1,6 @@
 library(tm)
 library(RWeka)
+library(plyr)
 library(doParallel)
 registerDoParallel(2)
 
@@ -77,13 +78,19 @@ createTrainingSet<-function(src_path,target_path,ratio){
 	rm(lines)
 }
 
-suggestWord<-function(inputWord){
+suggestWord<-function(inputWord,uniFreq,biFreq,triFreq){
 	#lambda for interpolation - do deep training for this too
-	l1<-1
-	l2<-2
-	l3<-3
 	
 	len<-length(inputWord)
+	
+	#unigram
+	inwd<-inputWord[length(inputWord)]
+	unilen<-nrow(uniFreq)
+	unitmp<-uniFreq
+	unitmp$prob<-uniFreq$freq/unilen
+	unitmp$target<-uniFreq$token
+	#should put this in findWord()
+	unitmp<-head(unitmp[order(unitmp$freq,decreasing=T),],1000)
 	
 	#bigram
 	inwd<-inputWord[len:length(inputWord)]
@@ -110,22 +117,29 @@ suggestWord<-function(inputWord){
 	#print(tmp2)
 	
 	#quadgram
-	inwd<-inputWord[(len-2):length(inputWord)]
-	inwd<-paste(inwd,collapse=' ')
-	wd<-paste('^',inwd,'$',sep='')
-	wd2<-paste('^',inwd,' .*$',sep='')
-	tmp<-findWords(triFreq,wd)
-	tmp2<-findWords(quadFreq,wd2)
-	tmp2$prob<-tmp2$freq/tmp$freq
-	tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
-	quadtmp<-tmp2
+	#inwd<-inputWord[(len-2):length(inputWord)]
+	#inwd<-paste(inwd,collapse=' ')
+	#wd<-paste('^',inwd,'$',sep='')
+	#wd2<-paste('^',inwd,' .*$',sep='')
+	#tmp<-findWords(triFreq,wd)
+	#tmp2<-findWords(quadFreq,wd2)
+	#tmp2$prob<-tmp2$freq/tmp$freq
+	#tmp2$target<-gsub(paste('^',inwd,' ',sep=''),'',tmp2$token)
+	#quadtmp<-tmp2
 	#print(tmp2)
 	
-	tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
-	tbl<-merge(x=tbl,y=quadtmp,by="target",all.x=T)
-	tbl$score<-rowSums(tbl[,c(4,7,10)])
-	tbl<-tbl[order(tbl$score,decreasing=T),]
-	print(head(tbl[,c(1,11)]))
+	tbl<-merge(x=unitmp,y=bitmp,by="target",all.x=T)
+	tbl<-merge(x=tbl,y=tritmp,by="target",all.x=T)
+	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
+	#tbl<-merge(x=tbl,y=quadtmp,by="target",all.x=T)
+	tbl<-mdply(tbl[,c('target','prob.x','prob.y','prob')],function(target,token.x,prob.x,prob.y,prob){ 
+		target					
+		#prob.x
+		#abs(log(prob.y)) * 1/3 + abs(log(prob)) * 1/3
+		abs(log(prob.x)) * 1/3 + abs(log(prob.y)) * 1/3 + abs(log(prob)) * 1/3
+	})
+	
+	print(head(tbl[order(tbl$V1,decreasing=T),]))
 	
 	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
 	#tbl$score<-rowSums(tbl[,c(4,7)])
@@ -133,10 +147,7 @@ suggestWord<-function(inputWord){
 	#print(head(tbl))
 }
 
-#load grams first
-inputWord<-c('i','have','a')
-#inputWord<-c('to','the')
-suggestWord(inputWord)
+
 
 ###################################################################
 
@@ -148,9 +159,7 @@ suggestWord(inputWord)
 #target_path<-'data/simple_freq'
 #ratio<-1
 createTrainingSet('data/simple.csv','data/simple_freq',1)
-createTrainingSet('final/en_US/en_US.blogs.txt','data/blog_freq',0.05)
-createTrainingSet('final/en_US/en_US.twitter.txt','data/twitter_freq',0.05)
-createTrainingSet('final/en_US/en_US.news.txt','data/news_freq',0.05)
+ 
 
 
 #path<-'data/blog_sm.csv'
@@ -236,5 +245,11 @@ tmp2
 
 
 #stopImplicitCluster()
+
+#load grams first
+inputWord<-c('i','have','a')
+#inputWord<-c('to','the')
+suggestWord(inputWord,uniFreq,biFreq,triFreq)
+
 
 
