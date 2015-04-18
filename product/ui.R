@@ -11,6 +11,6 @@ fluidPage(
 		#textInput("search", label = h3("Word Prediction Demo"), value = "Enter text..."),
 		textInput("search", label = h3("Word Prediction Demo"), value = "Enter text..."),
 		hr(),
-		fluidRow(column(3, verbatimTextOutput("result")))
+		fluidRow(column(3, tableOutput("result")))
 	)
 )

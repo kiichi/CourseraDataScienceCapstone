@@ -4,6 +4,10 @@ library(plyr)
 library(doParallel)
 registerDoParallel(2)
 
+# For Input Text
+simpleTokenizer<-function(line){  
+	strsplit(tolower(line),"[ \\t\\.\\?!\\$,\"]+") [[1]]	
+}
 
 getCorpus<-function(path){
 	options(mc.cores=1)	
@@ -138,8 +142,8 @@ suggestWord<-function(inputWord,uniFreq,biFreq,triFreq){
 		#abs(log(prob.y)) * 1/3 + abs(log(prob)) * 1/3
 		abs(log(prob.x)) * 1/3 + abs(log(prob.y)) * 1/3 + abs(log(prob)) * 1/3
 	})
-	
-	print(head(tbl[order(tbl$V1,decreasing=T),]))
+	head(tbl[order(tbl$V1,decreasing=T),])
+	#print(head(tbl[order(tbl$V1,decreasing=T),]))
 	
 	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
 	#tbl$score<-rowSums(tbl[,c(4,7)])
@@ -162,8 +166,8 @@ createTrainingSet('data/simple.csv','data/simple_freq',1)
  
 
 
-#path<-'data/blog_sm.csv'
-path<-'data/simple.csv'
+path<-'data/blog_sm.csv'
+#path<-'data/simple.csv'
 cps<-getCorpus(path)
 
 uniTokens<-getTokens(cps,1) 
@@ -182,7 +186,7 @@ triFreq<-readRDS('data/simple_freq_3.Rda')
 uniFreq<-readRDS('data/blog_freq_1.Rda')
 biFreq<-readRDS('data/blog_freq_2.Rda')
 triFreq<-readRDS('data/blog_freq_3.Rda')
-quadFreq<-readRDS('data/blog_freq_4.Rda')
+#quadFreq<-readRDS('data/blog_freq_4.Rda')
 
 findWords(uniFreq,'^i$')
 findWords(biFreq,'^i have$')
@@ -247,8 +251,9 @@ tmp2
 #stopImplicitCluster()
 
 #load grams first
-inputWord<-c('i','have','a')
+#inputWord<-c('i','have','a')
 #inputWord<-c('to','the')
+inputWord <- simpleTokenizer('I have a')
 suggestWord(inputWord,uniFreq,biFreq,triFreq)
 
 
