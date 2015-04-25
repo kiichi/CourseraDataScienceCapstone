@@ -13,6 +13,7 @@ vignettes/*.html
 vignettes/*.pdf
 
 data/
+data*/
 final/
 *.zip
 .RData

@@ -15,13 +15,6 @@ findWords<-function(freq,target,limit=1000){
 
 suggestWord<-function(searchText,uniFreq,biFreq,triFreq,limit=1000){
 	inputWord <- simpleTokenizer(searchText)
-	#stillTyping<-!grepl(' $',searchText)
-	
-	#if still typing, filter by last word
-	
-	#e.g. "have a nice d" -> take filter everything start with "d"	
-	
-	#lambda for interpolation - do deep training for this too
 	
 	len<-length(inputWord)
 	
@@ -32,6 +25,7 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,limit=1000){
 	unitmp$prob<-uniFreq$freq/unilen
 	unitmp$target<-uniFreq$token
 	#should put this in findWord()
+	# no limit
 	unitmp<-unitmp[!(unitmp$target %in% inputWord),]
 	unitmp<-head(unitmp[order(unitmp$freq,decreasing=T),],limit)
 	print(head(unitmp,10))
@@ -79,6 +73,10 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,limit=1000){
 	l1<-ttl/nrow(unitmp)
 	l2<-ttl/nrow(bitmp)
 	l3<-ttl/nrow(tritmp)
+	ttl<-l1+l2+l3
+	l1<-l1/ttl
+	l2<-l2/ttl
+	l3<-l3/ttl
 	
 	
 	
@@ -86,6 +84,8 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,limit=1000){
 	tbl<-merge(x=tbl,y=tritmp,by="target",all.x=T)
 	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
 	#tbl<-merge(x=tbl,y=quadtmp,by="target",all.x=T)
+	
+	#head(biFreq[biFreq$token=='new york',])
 	
 	#show the table
 	#head(tbl[order(tbl$freq,decreasing=T),])
@@ -103,22 +103,46 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,limit=1000){
 		triProb<-0
 		if (!is.na(prob)){			
 			triProb <- prob
-		}				
-		uniProb * l1 + biProb * l2 + triProb * l3		
+		}	
+		uniProb*l1 + biProb*l2 + triProb*l3
+		#exp(log(uniProb * l1) + log(biProb * l2) + log(triProb * l3))		
 	})
 	names(tbl) <- c('target','uni','bi','tri','score')	
-	head(tbl[order(tbl$score,decreasing=T),],20)
-	#print(head(tbl[order(tbl$V1,decreasing=T),]))
+	final<-head(tbl[order(tbl$score,decreasing=T),],5)
+	final
+	
 	
 	#tbl<-merge(x=bitmp,y=tritmp,by="target",all.x=T)
 	#tbl$score<-rowSums(tbl[,c(4,7)])
 	#tbl<-tbl[order(tbl$score,decreasing=T),]
 	#print(head(tbl))
+	
+	
+	
+	###################
+	# simple KN test
+	# 	d<-0.75
+	# 	b1<-biFreq[biFreq$token=='san francisco',]$freq
+	# 	u1<-uniFreq[uniFreq$token=='san',]$freq
+	# 	#u2<-uniFreq[uniFreq$token=='francisco',]$freq
+	# 	
+	# 	#Novel Continousity
+	# 	#how many # of word "type" precieding	
+	# 	prec<-biFreq[grepl('.* francisco$',biFreq$token),]
+	# 	types<-nrow(prec)
+	# 	#sum of # of word "type" precieding	to normalize
+	# 	sumtypes<-sum(prec$freq)
+	# 	
+	# 	pkn<-max(b1-d,0)/u1 + d/u1 * types/sumtypes
+	
+	
+	
 }
 
 
+loaded<-F
 
-function(input, output) {
+function(input, output,session) {
 	
 #	#dataset <- reactive({
 #		diamonds[sample(nrow(diamonds), input$sampleSize),]
@@ -128,17 +152,32 @@ function(input, output) {
 	
 	#output$result <- renderPrint({ input$search })
 	
-	output$message<-renderText('Loading ... please wait')
+	output$message <- renderText({
+		if (loaded){			
+			'Ready to search now.'
+		}
+		else {
+			invalidateLater(1000, session)
+			paste("Loading ... Please wait .... ", Sys.time())
+		}
+	})
+	
+	#output$message<-renderText('Loading ... please wait')
 	print('loading')
-	uniFreq<-read.csv(unz('data/twitter_freq_1.csv.zip','twitter_freq_1.csv'))
-	biFreq<-read.csv(unz('data/twitter_freq_2.csv.zip','twitter_freq_2.csv'))
-	triFreq<-read.csv(unz('data/twitter_freq_3.csv.zip','twitter_freq_3.csv'))
-	output$message<-renderText('Ready to search now.')	
+	
+	
+	uniFreq<-readRDS('data/blog_freq_1.Rda')
+	biFreq<-readRDS('data/blog_freq_2.Rda')
+	triFreq<-readRDS('data/blog_freq_3.Rda')
+	loaded<-T
 	print('done!')
+	
+	
 	#output$result<-renderTable({suggestWord(input$search,uniFreq,biFreq,triFreq)})
 	
 	
 	doSearch <- eventReactive(input$predictButton, {
+		print('searching...')
 		suggestWord(input$search,uniFreq,biFreq,triFreq)
 	})
 	

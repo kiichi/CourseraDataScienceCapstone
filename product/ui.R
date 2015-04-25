@@ -10,10 +10,12 @@ fluidPage(
 	),	
 	mainPanel(
 		#textInput("search", label = h3("Word Prediction Demo"), value = "Enter text..."),
-		verbatimTextOutput("message"),
-		br(),
-		textInput("search", label = h3("Word Prediction Demo"), value = "Enter text..."),
-		actionButton("predictButton", "Predict"),
+				
+		fluidRow(
+			column(9,textInput("search", label = h3("Word Prediction Demo"), value = "Please wait....")),
+			column(3,actionButton("predictButton", "Find Next Word"))
+		),
+		fluidRow(column(12,textOutput("message"))),	
 		hr(),
 		fluidRow(column(3, tableOutput("result")))
 	)
