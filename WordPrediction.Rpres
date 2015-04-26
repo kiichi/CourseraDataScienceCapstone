@@ -6,14 +6,23 @@ date: April 26, 2015
 Background and Motivation
 ========================================================
 
-Word Prediction is important text mining technique in order to speed up user's input. Especially, it's important on smartphone application because the keyboard functionalities and space are limited. The goal of this project is to build an app that takes user input text, and display predicted words next to it.
+Word Prediction is one of the most important text mining techniques in order to speed up input process. In limited User Interface environment, such as smartphone application, predicting next word is key feature of the platform because the keyboard size and functionalities are limited; users will get huge benefit by saving keystroke.
 
-Data
+The goal of this project is to build an app that takes user input, and display predicted word. Additionally, the user can select a specific data source from three different corpora: Blog, News and Twitter, and the other candidates of predicted words are displayed with the final score.
+
+Data Set
 ========================================================
 
 In this demo, you can choose one of three data sources: Twitter, Blog and News.
-Each file has been imported and files are processed into unigram, bigram and trigram tables.
-Additionally, the profanity filter has been applied before creating n-gram data set. 
+
+Each file has been preprocessed:
+
+1. Read original text file into memory.
+1. Take 5% sample from the entire set.
+1. Apply profanity filter.
+1. Using N-Gram Tokenizer to build unigram, bigram, trigram, and quadgram.
+1. Build frequency tables for each token so that it's ready to calculate the probability of occuring in each N-Gram based on Markov Assumption (See next slide)
+
 
 Model and Smoothing
 ========================================================
@@ -27,13 +36,20 @@ Four major options are examined for this demo:
 * Interpolation
 * Kneser-Ney
 
-In this demo, I decided to implement interpolation smoothing since it's fast to compute; however, the Kneser-Ney seems beat other models at the end.
+In this demo, I decided to implement interpolation smoothing since it's fast to compute and it's giving reasonable results. Additionally, some weight from the Kneser-Ney smoothing are blended from lower order of grams.
+
+Demo
+========================================================
 
 
 Future Work
 ========================================================
 
-If I have extra time, I would definitely consider to implement Generalized Language Model (GLM) since it'll be quick improvement by creating another corpus by replacing rare occuring words with <UNK> symbol. Also, I would spend time to speed up and minize the storage size for the corpus. I can think of better data structure using hash table / index or tree which are based on O(Log) efficiency.
+A quick improvement could be implemented storing the current user's input history. In Shiny App, 
+
+I would definitely consider to implement Generalized Language Model (GLM) since it'll be add-on improvement by creating another corpus by replacing rare occuring words with <UNK> symbol. 
+
+Also, I would spend time to speed up and minize the storage size for the corpus. I can think of better data structure using tree which is based on O(Log) efficiency.
 
 
 

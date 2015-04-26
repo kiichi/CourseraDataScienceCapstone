@@ -272,8 +272,8 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 		biProb*l2 + triProb*l3 + quadProb * l4
 		#exp(log(uniProb * l1) + log(biProb * l2) + log(triProb * l3))		
 	})
-	names(tbl) <- c('target','uni','bi','tri','quad','score')	
-	final<-head(tbl[order(tbl$score,decreasing=T),],5)
+	names(tbl) <- c('WORD','P(UNI)','P(BI)','P(TRI)','P(QUAD)','SCORE')	
+	final<-head(tbl[order(tbl$SCORE,decreasing=T),],5)
 	rownames(final)<-NULL
 	final	
 }

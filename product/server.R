@@ -1,6 +1,4 @@
 library(shiny)
-library(tm)
-library(RWeka)
 library(plyr)
 library(doParallel)
 registerDoParallel(2)
@@ -84,7 +82,7 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 	l3<-ttl/max(nrow(tritmp),1)
 	l4<-ttl/max(nrow(quadtmp),1)
 	ttl<-l1+l2+l3+l4
-	l1<-0
+	l1<-l1/ttl#not used
 	l2<-l2/ttl
 	l3<-l3/ttl
 	l4<-l4/ttl
@@ -93,10 +91,10 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 	
 	tbl<-mdply(tbl[,c('target','prob1','prob2','prob3','prob4')],function(target,prob1,prob2,prob3,prob4){ 
 		target					
-		uniProb<-0
-		if (is.numeric(prob1) && !is.na(prob1)){			
-			uniProb <- prob1
-		}
+		#uniProb<-0
+		#if (is.numeric(prob1) && !is.na(prob1)){			
+		#	uniProb <- prob1
+		#}
 		biProb<-0
 		if (is.numeric(prob2) && !is.na(prob2)){			
 			biProb <- prob2
@@ -110,14 +108,16 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 			quadProb <- prob4
 		}	
 		
-		uniProb*l1 + biProb*l2 + triProb*l3 + quadProb * l4
+		#uniProb*l1 + 
+		biProb*l2 + triProb*l3 + quadProb * l4
 		#exp(log(uniProb * l1) + log(biProb * l2) + log(triProb * l3))		
 	})
-	names(tbl) <- c('target','uni','bi','tri','quad','score')	
-	final<-head(tbl[order(tbl$score,decreasing=T),],5)
+	names(tbl) <- c('WORD','P(UNI)','P(BI)','P(TRI)','P(QUAD)','SCORE')	
+	final<-head(tbl[order(tbl$SCORE,decreasing=T),],5)
 	rownames(final)<-NULL
 	final	
 }
+
 
 
 loaded<-F
@@ -159,17 +159,22 @@ function(input, output,session) {
 	
 	
 	doSearch <- eventReactive(input$predictButton, {		
+		
 		if (input$search == ''){
-			data.frame(results='Not Found. Please enter some words')
+			output$nextWord<-renderText('Not Found. Please enter some words')
+			data.frame()
 		}
 		else {
-			suggestWord(input$search,uniFreq,biFreq,triFreq,quadFreq)		
+			res<-suggestWord(input$search,uniFreq,biFreq,triFreq,quadFreq)		
+			output$nextWord<-renderText(sprintf("%s",res[1,1]))
+			res
 		}
 	})
 	
 	output$result <- renderTable({		
 		doSearch()
 	})	
+	
 	
 	doSelectDS <- eventReactive(input$datasource, {	
 		ds<-tolower(input$datasource)
@@ -183,4 +188,6 @@ function(input, output,session) {
 	output$message <- renderText({
 		doSelectDS()
 	})
+	
+	
 }
