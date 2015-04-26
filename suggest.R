@@ -196,6 +196,25 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 	#bitmp<-bitmp[!(bitmp$target %in% inputWord),]	
 	colnames(bitmp)<-c('bw1','bw2','freq2','prob2','target')
 	#print(head(bitmp[order(bitmp$prob2,decreasing=T),],5))
+	
+	############################################################
+	#Also calculate Knesian-Ney
+	d<-0.75
+	# how many bigram 'san francisco'?
+	bidf<-tmp2
+	# how many preceeding word, 'san' by itself ?
+	u1<-tmp$freq	
+	
+	#Novel Continousity
+	#how many # of word "type" precieding like	'.* francisco'	
+	types<-nrow(tmp2)
+	#sum of # of word "type" precieding	to normalize
+	sumtypes<-sum(tmp2$freq)	
+	b1<-tmp2$freq	
+	#bitmp$probkn<-(b1-d)/u1 + d/u1 * types/sumtypes
+	# Replae BiGram Probability Itself?
+	bitmp$prob2<-(b1-d)/u1 + d/u1 * types/sumtypes
+	############################################################
 		
 	
 	#trigram
