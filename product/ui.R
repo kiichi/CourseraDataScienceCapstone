@@ -5,18 +5,23 @@
 library(shiny)
 
 fluidPage(
-	sidebarPanel(
-		selectInput('ds', 'Data Source', c('Twitter','Blog','News'))
-	),	
-	mainPanel(
-		#textInput("search", label = h3("Word Prediction Demo"), value = "Enter text..."),
-				
-		fluidRow(
-			column(9,textInput("search", label = h3("Word Prediction Demo"), value = "Please wait....")),
-			column(3,actionButton("predictButton", "Find Next Word"))
+	br(),
+	fluidRow(
+		br(),
+		column(4,		
+			selectInput('datasource', '1. Select Data Source', c('Blog','News','Twitter')),
+			textOutput("message")
 		),
-		fluidRow(column(12,textOutput("message"))),	
-		hr(),
-		fluidRow(column(3, tableOutput("result")))
-	)
+		column(4,							 
+					 textInput("search", label = "2. Enter Some Words"),
+					 actionButton("predictButton", "Find Next Word"),
+					 br(),
+					 br(),
+					 hr()
+		),
+		column(4,
+					 h5('3. Review results'),
+					 tableOutput("result")
+		)
+	)	
 )

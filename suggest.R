@@ -130,16 +130,44 @@ estimateKN<-function(searchText,uniFreq,biFreq,triFreq){
 }
 
 
+kntest<-function(searchText,uniFreq,biFreq,triFreq){	
+	inputWord <- simpleTokenizer(searchText)
+	len<-length(inputWord)
+	
+	inwd<-inputWord[len:length(inputWord)]  
+	
+	d<-0.75
+	# how many bigram 'san francisco'?
+	bidf<-biFreq[biFreq$w1==inwd[1],]
+	# how many preceeding word, 'san' by itself ?
+	u1<-uniFreq[uniFreq$w1==inwd[1],]$freq
+	#u2<-uniFreq[uniFreq$token=='francisco',]$freq
+	
+	#Novel Continousity
+	#how many # of word "type" precieding like	'.* francisco'	
+	types<-nrow(bidf)
+	#sum of # of word "type" precieding	to normalize
+	sumtypes<-sum(bidf$freq)
+	
+	b1<-bidf$freq
+	
+	#pkn<-max(b1-d,0)/u1 + d/u1 * types/sumtypes
+	bidf$pkn<-(b1-d)/u1 + d/u1 * types/sumtypes
+	head(bidf,10)
+}
+
+
 ########################################################################################
 #searchText <- 'been three months'
 #searchText<-'Please let us'
 #searchText<-'a nice cup of'
-#limit<-3000
+#limit<-1000
 #uniFreq<-readRDS('data1/blog_freq_1.Rda')
 #biFreq<-readRDS('data1/blog_freq_2.Rda')
 #triFreq<-readRDS('data1/blog_freq_3.Rda')
 #quadFreq<-readRDS('data1/blog_freq_4.Rda')
-suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
+#suggestWord('please let us know',uniFreq,biFreq,triFreq,quadFreq,1000)
+suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq,limit=1000){
 	inputWord <- simpleTokenizer(searchText)	
 	len<-length(inputWord)
 	
@@ -171,7 +199,7 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
 		
 	
 	#trigram
-	inwd<-inputWord[(len-1):length(inputWord)]	
+	inwd<-inputWord[max((len-1),0):length(inputWord)]	
 	tmp<-biFreq[biFreq$w1==inwd[1] & biFreq$w2==inwd[2],]
 	tmp2<-triFreq[triFreq$w1==inwd[1] & triFreq$w2==inwd[2],]
 	tmp2<-head(tmp2,limit*2) #cut
@@ -183,7 +211,7 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
 	#print(head(tritmp[order(tritmp$prob3,decreasing=T),],5))
 	
 	#quadgram
-	inwd<-inputWord[(len-2):length(inputWord)]	
+	inwd<-inputWord[max((len-2),0):length(inputWord)]	
 	tmp<-triFreq[triFreq$w1==inwd[1] & triFreq$w2==inwd[2] & triFreq$w3==inwd[3],]
 	tmp2<-quadFreq[quadFreq$w1==inwd[1] & quadFreq$w2==inwd[2] & quadFreq$w3==inwd[3],]	
 	tmp2<-head(tmp2,limit) #cut
@@ -214,7 +242,7 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
 	l3<-ttl/max(nrow(tritmp),1)
 	l4<-ttl/max(nrow(quadtmp),1)
 	ttl<-l1+l2+l3+l4
-	l1<-l1/ttl
+	l1<-l1/ttl#not used
 	l2<-l2/ttl
 	l3<-l3/ttl
 	l4<-l4/ttl
@@ -223,10 +251,10 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
 	
 	tbl<-mdply(tbl[,c('target','prob1','prob2','prob3','prob4')],function(target,prob1,prob2,prob3,prob4){ 
 		target					
-		uniProb<-0
-		if (is.numeric(prob1) && !is.na(prob1)){			
-			uniProb <- prob1
-		}
+		#uniProb<-0
+		#if (is.numeric(prob1) && !is.na(prob1)){			
+		#	uniProb <- prob1
+		#}
 		biProb<-0
 		if (is.numeric(prob2) && !is.na(prob2)){			
 			biProb <- prob2
@@ -240,11 +268,13 @@ suggestWord<-function(searchText,uniFreq,biFreq,triFreq,quadFreq=NA,limit=1000){
 			quadProb <- prob4
 		}	
 		
-		uniProb*l1 + biProb*l2 + triProb*l3 + quadProb * l4
+		#uniProb*l1 + 
+		biProb*l2 + triProb*l3 + quadProb * l4
 		#exp(log(uniProb * l1) + log(biProb * l2) + log(triProb * l3))		
 	})
 	names(tbl) <- c('target','uni','bi','tri','quad','score')	
 	final<-head(tbl[order(tbl$score,decreasing=T),],5)
+	rownames(final)<-NULL
 	final	
 }
 
@@ -269,6 +299,10 @@ createTrainingSet('final/en_US/en_US.twitter.txt','data2/twitter_freq',0.02);
 createTrainingSet('final/en_US/en_US.blogs.txt','data3/blog_freq',0.03);
 createTrainingSet('final/en_US/en_US.news.txt','data3/news_freq',0.03);
 createTrainingSet('final/en_US/en_US.twitter.txt','data3/twitter_freq',0.03);
+
+createTrainingSet('final/en_US/en_US.blogs.txt','data5/blog_freq',0.05);
+createTrainingSet('final/en_US/en_US.news.txt','data5/news_freq',0.05);
+createTrainingSet('final/en_US/en_US.twitter.txt','data5/twitter_freq',0.05);
 
 path<-'data/blog_sm.csv'
 #path<-'data/simple.csv'
@@ -318,6 +352,12 @@ write.table(uniFreq,'data/twitter_freq_1.csv',row.names=F,quote=F, sep = ",")
 write.table(biFreq,'data/twitter_freq_2.csv',row.names=F,quote=F, sep = ",")
 write.table(triFreq,'data/twitter_freq_3.csv',row.names=F,quote=F, sep = ",")
 
+
+
+uniFreq<-readRDS('data5/blog_freq_1.Rda')
+biFreq<-readRDS('data5/blog_freq_2.Rda')
+triFreq<-readRDS('data5/blog_freq_3.Rda')
+quadFreq<-readRDS('data5/blog_freq_4.Rda')
 
 
 # Add Splitted columns dynamically
@@ -414,6 +454,7 @@ suggestWord('you may not',uniFreq,biFreq,triFreq,1000) #have - close! 2nd pos
 suggestWord('a nice cup of',uniFreq,biFreq,triFreq,quadFreq,1000)
 # in quad gram
 suggestWord('a the end of',uniFreq,biFreq,triFreq,quadFreq,1000)
+suggestWord('please let us know',uniFreq,biFreq,triFreq,quadFreq,1000)
 
 test<-suggestWord('please let us',uniFreq,biFreq,triFreq,1000)
 
